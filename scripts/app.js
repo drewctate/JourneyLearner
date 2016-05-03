@@ -6,9 +6,6 @@ angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
   $stateProvider
       .state('home', {
           url: '/',
-          templateUrl: 'templates/map.html',
-          controller: function () {
-            drawMap();
-          }
+          templateUrl: 'templates/map.page.html',
       });
 });
