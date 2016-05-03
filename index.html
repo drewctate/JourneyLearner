@@ -8,7 +8,11 @@
   <md-toolbar layout="row">
     <h1>Journey Learner</h1>
   </md-toolbar>
-  <div ui-view></div>
+  <div class="page-body" layout="row">
+    <div flex></div>
+      <span ui-view></span>
+    <div flex></div>
+  </div>
   <script src="node_modules/angular/angular.js"></script>
   <!-- Include Angular Material w/ Dependancies -->
   <script src="node_modules/angular-animate/angular-animate.js"></script>
