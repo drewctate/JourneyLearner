@@ -1,0 +1,28 @@
+{
+  "name": "journeylearner",
+  "version": "1.0.0",
+  "description": "An app that teaches the journey behind a story",
+  "main": "index.html",
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "journey",
+    "history",
+    "travel",
+    "education"
+  ],
+  "author": "Andrew Tate",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.5.5",
+    "angular-material": "^1.0.8",
+    "d3": "^3.5.16",
+    "less": "^2.6.1",
+    "ui-router": "^1.0.0-alpha.3"
+  },
+  "devDependencies": {
+    "lite-server": "^2.2.0"
+  }
+}
