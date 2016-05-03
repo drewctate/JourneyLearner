@@ -1,0 +1,1 @@
+angular.module('JourneyLearner', ['ui.router', 'ngMaterial']);
