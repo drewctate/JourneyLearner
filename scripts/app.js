@@ -1,1 +1,14 @@
-angular.module('JourneyLearner', ['ui.router', 'ngMaterial']);
+'use strict';
+
+angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
+.config(function ($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.otherwise('/');
+  $stateProvider
+      .state('home', {
+          url: '/',
+          templateUrl: 'templates/map.html',
+          controller: function () {
+            console.log('Hello');
+          }
+      });
+});
