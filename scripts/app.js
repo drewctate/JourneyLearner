@@ -8,7 +8,7 @@ angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
           url: '/',
           templateUrl: 'templates/map.html',
           controller: function () {
-            console.log('Hello');
+            drawMap();
           }
       });
 });
