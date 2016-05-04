@@ -7,5 +7,6 @@ angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
       .state('home', {
           url: '/',
           templateUrl: 'templates/map.page.html',
+          controller: 'mapControl'
       });
 });

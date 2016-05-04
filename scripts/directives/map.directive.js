@@ -1,40 +1,38 @@
 angular.module('JourneyLearner')
-  .directive('map', ['mapService', function(maps) {
+  .directive('map', function() {
     return {
       restrict: 'E',
       template: '<span id="map"></span>',
+      scope: {
+        points: '='
+      },
       link: function ($scope) {
-        var lineData = maps.getMap();
+        var lineData = $scope.points;
 
         function drawMap (points) {
           var lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
-            .interpolate("cardinal");
+            .interpolate('cardinal');
 
-          var svgContainer = d3.select("#map").append("svg")
-            .attr("width", 700)
-            .attr("height", 500)
-            .attr("style", "background-color: #cc9900")
-            .attr("id", "mapsvg");
+          var svgContainer = d3.select('#map').append('svg')
+            .attr('id', 'map-svg');
 
-          var line = svgContainer.append("path")
-            .attr("d", lineFunction(lineData))
-            .attr("stroke", "blue")
-            .attr("stroke-width", 4)
-            .attr("fill", "none");
+          var line = svgContainer.append('path')
+            .attr('d', lineFunction(lineData))
+            .attr('id', 'map-stroke');
 
           var totalLength = line.node().getTotalLength();
 
           line
-            .attr("stroke-dasharray", totalLength + " " + totalLength)
-                .attr("stroke-dashoffset", totalLength)
+            .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength)
                 .transition()
                   .duration(5000)
-                  .ease("linear")
-                  .attr("stroke-dashoffset", 0);
+                  .ease('linear')
+                  .attr('stroke-dashoffset', 0);
         }
         drawMap();
       }
     };
-  }]);
+  });
