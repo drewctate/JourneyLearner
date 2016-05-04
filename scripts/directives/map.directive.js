@@ -1,17 +1,19 @@
 angular.module('JourneyLearner')
-  .directive('map', function() {
+  .directive('map', ['$timeout', function($timeout) {
     return {
       restrict: 'E',
       template: '<span id="map"></span><md-button ng-click="drawPath(points)">Draw</md-button>',
       scope: {
-        points: '='
+        points: '=',
+        image: '='
       },
       link: function ($scope) {
         var svgContainer;
 
         function drawMap () {
           svgContainer = d3.select('#map').append('svg')
-            .attr('id', 'map-svg');
+            .attr('id', 'map-svg')
+            .style('background-image', 'url(\'styles/img/maps/' + $scope.image + '\')');
         }
 
         $scope.drawPath = function (points) {
@@ -35,7 +37,7 @@ angular.module('JourneyLearner')
                   .attr('stroke-dashoffset', 0);
         };
 
-        drawMap();
+        $timeout(drawMap, 200); // wait for image info to be loaded
       }
     };
-  });
+  }]);
