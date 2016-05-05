@@ -12,7 +12,10 @@ angular.module('JourneyLearner')
         $element.css('left', $scope.coords[0] - 150/2);
         $element.css('top', $scope.coords[1] - 100);
         $element.fadeIn(); // element is created hidden
-        $timeout(function () {$element.fadeOut();}, $scope.duration);
+        if ($scope.duration) {
+          $timeout(function () {$element.fadeOut(500);}, $scope.duration);
+          $timeout(function () {$element.remove();}, $scope.duration + 500);
+        }
       }
     };
   }]);
