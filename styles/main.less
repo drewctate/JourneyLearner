@@ -15,14 +15,25 @@ md-toolbar {
       margin-left: 20px;
     }
     #map {
+      position:relative;
       #map-svg {
         width: 700px;
         height: 400px;
+        z-index: 1;
       }
       #map-stroke {
         stroke: blue;
         stroke-width: 4;
         fill: none;
+      }
+      info {
+        width: 150;
+        height: 100;
+        background-color: #FFF;
+        border: 2px solid #000;
+        border-radius: 4px;
+        position: absolute;
+        z-index: 1;
       }
     }
   }

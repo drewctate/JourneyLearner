@@ -1,14 +1,25 @@
 angular.module('JourneyLearner')
-  .directive('map', ['$timeout', function($timeout) {
+  .directive('map', ['$timeout', '$compile', function($timeout, $compile) {
     return {
       restrict: 'E',
-      template: '<span id="map"></span><md-button ng-click="drawPath(points)">Draw</md-button>',
+      template: '<div id="map"></div><md-button ng-click="drawPath(points)">Draw</md-button>',
       scope: {
         points: '=',
         image: '='
       },
-      link: function ($scope) {
+      link: function ($scope, $element) {
         var svgContainer;
+
+        function drawInfoBox(x, y, info) {
+          $scope.infoCoords = [x, y];
+          $scope.infoText = info;
+          var el = $compile('<info text="infoText" coords="infoCoords"></info>')($scope);
+          $element.find('div').append(el);
+        }
+
+        function removeInfoBox() {
+          $element.find('info').remove();
+        }
 
         function drawMap () {
           svgContainer = d3.select('#map').append('svg')
@@ -32,11 +43,12 @@ angular.module('JourneyLearner')
             .attr('stroke-dasharray', totalLength + ' ' + totalLength)
                 .attr('stroke-dashoffset', totalLength)
                 .transition()
-                  .duration(5000)
+                  .duration(8000)
                   .ease('linear')
                   .attr('stroke-dashoffset', 0);
         };
 
+        drawInfoBox(8, 23, 'Here\'s where Shackleton journeyed!');
         $timeout(drawMap, 200); // wait for image info to be loaded
       }
     };
