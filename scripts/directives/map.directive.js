@@ -10,11 +10,11 @@ angular.module('JourneyLearner')
       link: function ($scope, $element) {
         var svgContainer;
 
-        function drawInfoBox(x, y, info) {
+        function drawInfoBox(x, y, info, duration) {
           $scope.infoCoords = [x, y];
           $scope.infoText = info;
-          var el = $compile('<info text="infoText" coords="infoCoords"></info>')($scope);
-          $element.find('div').append(el);
+          var el = $compile('<info text="infoText" coords="infoCoords" duration="' + duration + '"></info>')($scope);
+          angular.element(document.getElementById('map')).append(el);
         }
 
         function removeInfoBox() {
@@ -28,6 +28,7 @@ angular.module('JourneyLearner')
         }
 
         $scope.drawPath = function (points) {
+          drawInfoBox(372, 9, 'Shackleton began his journey here!', 3000);
           var lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
@@ -48,7 +49,6 @@ angular.module('JourneyLearner')
                   .attr('stroke-dashoffset', 0);
         };
 
-        drawInfoBox(8, 23, 'Here\'s where Shackleton journeyed!');
         $timeout(drawMap, 200); // wait for image info to be loaded
       }
     };
