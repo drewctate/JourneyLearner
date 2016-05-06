@@ -112,7 +112,7 @@ angular.module('JourneyLearner')
           }
         }
 
-        $timeout(init, 200); // wait for map info to be loaded
+        $timeout(init, 150); // wait for map info to be loaded
       }
     };
   }]);

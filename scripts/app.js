@@ -2,10 +2,10 @@
 
 angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
 .config(function ($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.otherwise('/');
+  $urlRouterProvider.otherwise('/maps/0');
   $stateProvider
-      .state('home', {
-          url: '/',
+      .state('maps', {
+          url: '/maps/:mapId',
           templateUrl: 'templates/map.page.html',
           controller: 'mapControl'
       });
