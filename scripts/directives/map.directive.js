@@ -11,8 +11,9 @@ angular.module('JourneyLearner')
         var line = {};
         var lineFunction;
         var totalLength = 0;
-        var curPoints = [];
         var curDataPoint = null;
+        var curDataPointIndex = 0;
+        var pointLengths = [];
 
         function drawInfoBox(x, y, info, duration) {
           $scope.infoCoords = [x, y];
@@ -26,63 +27,89 @@ angular.module('JourneyLearner')
           $timeout(function () {$element.find('info').remove();}, delay);
         }
 
-        function drawMap () {
+        function drawMap() {
           svgContainer = d3.select('#map').append('svg')
             .attr('id', 'map-svg')
             .style('background-image', 'url(\'styles/img/maps/' + $scope.map.image + '\')');
         }
 
-        function isDataPoint(point) {
-          for (var i = 0; i < $scope.map.datapoints.length; i++) {
-            if (point.x == $scope.map.datapoints[i].coords[0] && point.y == $scope.map.datapoints[i].coords[1]) {
-              return i;
-            }
-          }
-          return -1;
-        }
-
         function nextPoint() {
           var map = $scope.map;
-          for (var i = curPoints.length; i < map.points.length; i++) {
-            var dpindex = isDataPoint(map.points[i]);
-            if (dpindex != -1) {
-              curDataPoint = $scope.map.datapoints[dpindex];
-              curPoints.push(map.points[i]);
-              break;
-            } else {
-              curPoints.push(map.points[i]);
-            }
-            curDataPoint = null;
+          var prevLength;
+          var curLength = pointLengths[curDataPointIndex];
+          var totalLength = pointLengths[pointLengths.length - 1];
+
+          if (curDataPointIndex === 0) {  // begin with prevLength = 0
+            prevLength = 0;
+          } else {
+            prevLength = pointLengths[curDataPointIndex - 1];
           }
 
-          line.attr("d", lineFunction(curPoints));  // add new points to the line
-
-          var prevLength = totalLength;
-          totalLength = line.node().getTotalLength();
-
+          curDataPoint = $scope.map.datapoints[curDataPointIndex];
           // if drawing to datapoint instead of end, draw info box
           var endCallBack;
           if (curDataPoint) {
             endCallBack = function () {drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);};
           } else {
-            endCallBack = {};
+            endCallBack = function () {};
           }
 
           line
-              .attr("stroke-dasharray", totalLength + " " + totalLength)
-              .attr("stroke-dashoffset", totalLength - prevLength)
+              .attr('stroke-dasharray', curLength + ' ' + totalLength)
+              .attr('stroke-dashoffset', curLength - prevLength)
               .transition()
                 .duration(8000)
-                .ease("linear")
-                .attr("stroke-dashoffset", 0)
+                .ease('linear')
+                .attr('stroke-dashoffset', 0)
                 .each('end', endCallBack);
+
+          curDataPointIndex++;
         }
 
-        $scope.drawPath = function() {
-          line = svgContainer.append('path')
-            .attr('d', lineFunction($scope.map.points))
-            .attr('id', 'map-stroke');
+        function isDataPoint(point) {
+          if ($scope.map.datapoints != null && $scope.map.datapoints[0] !== null) {
+            for (var i = 0; i < $scope.map.datapoints.length; i++) {
+              if (point.x == $scope.map.datapoints[i].coords[0] && point.y == $scope.map.datapoints[i].coords[1]) {
+                return i;
+              }
+            }
+          }
+          return -1;
+        }
 
+        function buildPath() {
+          var map = $scope.map;
+          var dpindex;
+          var end = false;
+          var curPoints = [];
+
+          while (!end) {
+            for (var i = curPoints.length; i < map.points.length; i++) {
+              dpindex = isDataPoint(map.points[i]);
+              if (dpindex != -1) {
+                curPoints.push(map.points[i]);
+                break;
+              } else {
+                curPoints.push(map.points[i]);
+              }
+            }
+
+            line.attr('d', lineFunction(curPoints));  // add new points to the line
+            if (dpindex == -1) {  // reached end of points
+              pointLengths[pointLengths.length] = line.node().getTotalLength();  // Add total length of line to end of array
+              end = true;
+            } else {
+              pointLengths[dpindex] = line.node().getTotalLength();  // get length of line at datapoint
+            }
+          }
+
+          // hide line initially
+          line
+            .attr('stroke-dasharray', pointLengths[pointLengths.length - 1] + ' ' + pointLengths[pointLengths.length - 1])
+            .attr('stroke-dashoffset', pointLengths[pointLengths.length - 1]);
+        }
+
+        $scope.drawPath = function () {
           removeInfoBox(500);  // remove possible info box when new path is begun
           nextPoint();
         };
@@ -93,14 +120,10 @@ angular.module('JourneyLearner')
             .y(function(d) { return d.y; })
             .interpolate('cardinal');
 
-          $scope.map.datapoints.push({
-            coords: [361, 185],
-            desc: 'I\'m a test datapoint!'
-          });
-          $scope.map.datapoints.push({
-            coords: [294, 138],
-            desc: 'I\'m a test datapoint!'
-          });
+          line = svgContainer.append('path')
+            .attr('id', 'map-stroke');
+
+          buildPath();
         }
 
         function init () {
