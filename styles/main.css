@@ -1,0 +1,48 @@
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak {
+  display: none !important;
+}
+md-toolbar h1 {
+  margin-left: 20px;
+}
+.page-body .map-container {
+  width: 700px;
+}
+.page-body .map-container h2,
+.page-body .map-container p {
+  margin-left: 10px;
+}
+.page-body .map-container #map {
+  position: relative;
+}
+.page-body .map-container #map #map-svg {
+  width: 700px;
+  height: 400px;
+  z-index: 1;
+}
+.page-body .map-container #map #map-stroke {
+  stroke: blue;
+  stroke-width: 4;
+  fill: none;
+}
+.page-body .map-container #map info {
+  width: 150;
+  height: 70;
+  background-color: #FFF;
+  border: 2px solid #000;
+  border-radius: 4px;
+  display: none;
+  position: absolute;
+  z-index: 2;
+}
+.page-body .map-container #map info .triangle {
+  width: 150px;
+  height: 30px;
+  position: absolute;
+  bottom: -30px;
+  background-image: url('img/triangle.png');
+}
+.page-body md-sidenav {
+  padding: 10px;
+}
