@@ -1,0 +1,2 @@
+# This is the npm symlinks directory.  Github won't build the code if it contains symlinks.
+node_modules/.bin/
