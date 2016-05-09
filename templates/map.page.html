@@ -1,0 +1,14 @@
+<md-sidenav md-is-locked-open="true">
+  <md-content ng-repeat="map in maps">
+    <md-button ui-sref="maps({ mapId: map.id })">
+      {{ map.title }}
+    </md-button>
+    <hr>
+  </md-content>
+</md-sidenav>
+<div class="map-container" md-whiteframe="3" flex-gt-xs="nogrow" flex-xs="grow">
+  <h2>{{ maps[curMapId].title }}</h2>
+  <p>{{ maps[curMapId].description }}</p>
+  <map cur-map="maps[curMapId]"></map>
+</div>
+<div flex></div>

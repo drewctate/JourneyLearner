@@ -1,0 +1,51 @@
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+
+md-toolbar {
+  h1 {
+    margin-left: 20px;
+  }
+}
+
+.page-body {
+  .map-container {
+    width: 700px;
+    h2, p {
+      margin-left: 10px;
+    }
+    #map {
+      position:relative;
+      #map-svg {
+        width: 700px;
+        height: 400px;
+        z-index: 1;
+      }
+      #map-stroke {
+        stroke: blue;
+        stroke-width: 4;
+        fill: none;
+      }
+      info {
+        width: 150;
+        height: 70;
+        background-color: #FFF;
+        border: 2px solid #000;
+        border-radius: 4px;
+        display: none;
+        position: absolute;
+        z-index: 2;
+        .triangle {
+          width: 150px;
+          height: 30px;
+          position: absolute;
+          bottom: -30px;
+          background-image: url('img/triangle.png');
+        }
+      }
+    }
+  }
+  md-sidenav {
+    padding: 10px;
+  }
+}
