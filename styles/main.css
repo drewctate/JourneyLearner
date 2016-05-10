@@ -3,8 +3,15 @@
 .ng-cloak {
   display: none !important;
 }
-md-toolbar h1 {
-  margin-left: 20px;
+.toolbar {
+  height: 40px;
+  margin-bottom: 10px;
+  background-color: #3f51b5;
+}
+.toolbar h1 {
+  color: white;
+  margin: 0 0 0 20px;
+  font-size: 30px;
 }
 .page-body .map-container {
   width: 700px;
@@ -12,6 +19,9 @@ md-toolbar h1 {
 .page-body .map-container h2,
 .page-body .map-container p {
   margin-left: 10px;
+}
+.page-body .map-container h2 {
+  margin-bottom: 0;
 }
 .page-body .map-container #map {
   position: relative;
@@ -43,6 +53,12 @@ md-toolbar h1 {
   bottom: -30px;
   background-image: url('img/triangle.png');
 }
-.page-body md-sidenav {
+.page-body #sidenav {
   padding: 10px;
+  width: 700px;
+}
+@media (min-width: 960px) {
+  .page-body #sidenav {
+    width: 320px;
+  }
 }
