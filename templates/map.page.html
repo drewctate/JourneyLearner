@@ -1,4 +1,8 @@
 <div class="map-container" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow">
+  <div ng-show="!maps" id="loading">
+    <h2>Please wait while I grab those maps from the database!</h2>
+    <img src="styles/img/ajax-loader.gif">
+  </div>
   <h2>{{ maps[curMapId].title }}</h2>
   <p>{{ maps[curMapId].description }}</p>
   <map cur-map="maps[curMapId]"></map>
