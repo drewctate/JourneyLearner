@@ -1,4 +1,6 @@
-angular.module('JourneyLearner')
+(function(angular) {
+  'use strict';
+  angular.module('JourneyLearner')
   .directive('map', ['$timeout', '$compile', function($timeout, $compile) {
     return {
       restrict: 'E',
@@ -139,3 +141,4 @@ angular.module('JourneyLearner')
       }
     };
   }]);
+})(angular);
