@@ -1,3 +1,5 @@
+@info-box-width: 150px;
+
 [ng\:cloak], [ng-cloak], .ng-cloak {
   display: none !important;
 }
@@ -35,8 +37,8 @@
         fill: none;
       }
       info {
-        width: 150;
-        height: 70;
+        width: @info-box-width;
+        height: auto;
         background-color: #FFF;
         border: 2px solid #000;
         border-radius: 4px;
@@ -44,11 +46,12 @@
         position: absolute;
         z-index: 2;
         .triangle {
-          width: 150px;
+          width: @info-box-width;
           height: 30px;
           position: absolute;
           bottom: -30px;
           background-image: url('img/triangle.png');
+          background-size: 100% 100%;
         }
       }
     }
