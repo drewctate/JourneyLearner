@@ -1,12 +1,18 @@
-angular.module('JourneyLearner')
+(function(angular) {
+  'use strict';
+  angular.module('JourneyLearner')
   .directive('map', ['$timeout', '$compile', function($timeout, $compile) {
     return {
       restrict: 'E',
-      template: '<div id="map"></div><md-button ng-click="drawPath(points)">Draw</md-button>',
+      templateUrl: 'templates/map.directive.html',
       scope: {
         map: '=curMap'
       },
       link: function ($scope, $element) {
+
+        var curState = 'begin';
+        $scope.drawBtnDisabled = false;
+
         var svgContainer;
         var line = {};
         var lineFunction;
@@ -49,9 +55,19 @@ angular.module('JourneyLearner')
           // if drawing to datapoint instead of end, draw info box
           var endCallBack;
           if (curDataPoint) {
-            endCallBack = function () {drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);};
+            endCallBack = function () {
+              curState = 'paused';
+              updateBtn();
+              drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);
+              curDataPointIndex++;
+            };
           } else {
-            endCallBack = function () {};
+            endCallBack = function () {
+              $scope.$apply(function () {  // if this isn't house in an $apply, it doesn't update the button
+                curState = 'finished';
+                updateBtn();
+              });
+            };
           }
 
           line
@@ -62,8 +78,6 @@ angular.module('JourneyLearner')
                 .ease('linear')
                 .attr('stroke-dashoffset', 0)
                 .each('end', endCallBack);
-
-          curDataPointIndex++;
         }
 
         function isDataPoint(point) {
@@ -109,9 +123,23 @@ angular.module('JourneyLearner')
             .attr('stroke-dashoffset', pointLengths[pointLengths.length - 1]);
         }
 
+        function resetLine () {
+          // set offset to total length
+          line.attr('stroke-dashoffset', pointLengths[pointLengths.length - 1]);
+          curDataPointIndex = 0;
+        }
+
         $scope.drawPath = function () {
-          removeInfoBox(500);  // remove possible info box when new path is begun
-          nextPoint();
+          if (curState !== 'finished') {
+            curState = 'drawing';
+            updateBtn();
+            removeInfoBox(500);  // remove possible info box when new path is begun
+            nextPoint();
+          } else {
+            curState = 'begin';
+            updateBtn();
+            resetLine();
+          }
         };
 
         function beginPath () {
@@ -126,16 +154,36 @@ angular.module('JourneyLearner')
           buildPath();
         }
 
+        function updateBtn () {
+          if (curState === 'begin') {
+            $scope.drawBtn = 'Begin Journey';
+          } else if (curState === 'drawing') {
+            $scope.drawBtn = 'Drawing';
+            $scope.drawBtnDisabled = true;
+          } else if (curState === 'paused') {
+            $scope.drawBtn = 'Continue Journey';
+            $scope.drawBtnDisabled = false;
+          } else if (curState === 'finished') {
+            $scope.drawBtn = 'Start Again';
+            $scope.drawBtnDisabled = false;
+          } else {
+            $scope.drawBtn = 'Error';
+            $scope.drawBtnDisabled = true;
+          }
+        }
+
         function init () {
           if ($scope.map) {
             drawMap();
             beginPath();
+            updateBtn();
           } else {
-            $timeout(init, 200);
+            $timeout(init, 150);
           }
         }
 
-        $timeout(init, 150); // wait for map info to be loaded
+        init();
       }
     };
   }]);
+})(angular);
