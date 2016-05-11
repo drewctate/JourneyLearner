@@ -10,18 +10,20 @@
       },
       link: function ($scope, $element) {
 
-        var curState = 'begin';
+        $scope.curState = 'begin';
         $scope.drawBtnDisabled = false;
+        $scope.avgDifference = null;
 
-        var drawSpeed = 50; // in px/sec
-        var svgContainer;
-        var line = {};
-        var lineFunction;
-        var totalLength = 0;
-        var curDataPoint = null;
-        var curDataPointIndex = 0;
-        var pointLengths = [];
-        var pointDurations = [];
+        var drawSpeed = 50, // in px/sec
+            svgContainer,
+            line = {},
+            userLine,
+            lineFunction,
+            totalLength = 0,
+            curDataPoint = null,
+            curDataPointIndex = 0,
+            pointLengths = [],
+            pointDurations = [];
 
         function drawInfoBox(x, y, info, duration) {
           $scope.infoCoords = [x, y];
@@ -59,7 +61,7 @@
           var endCallBack;
           if (curDataPoint) {
             endCallBack = function () {
-              curState = 'paused';
+              $scope.curState = 'paused';
               updateBtn();
               drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);
               curDataPointIndex++;
@@ -67,7 +69,7 @@
           } else {
             endCallBack = function () {
               $scope.$apply(function () {  // if this isn't house in an $apply, it doesn't update the button
-                curState = 'finished';
+                $scope.curState = 'finished';
                 updateBtn();
               });
             };
@@ -136,8 +138,6 @@
             pointDurations[j] = Math.floor(pointDurations[j] * 10);
             pointDurations[j] *= 100;
           }
-          console.log(pointDurations);
-          console.log(pointLengths);
 
           // hide line initially
           line
@@ -151,16 +151,25 @@
           curDataPointIndex = 0;
         }
 
+        function showLine () {
+          line.attr('stroke-dashoffset', 0);
+          curDataPointIndex = pointLengths.length - 1;
+        }
+
         $scope.drawPath = function () {
-          if (curState !== 'finished') {
-            curState = 'drawing';
+          if ($scope.curState !== 'finished') {
+            $scope.curState = 'drawing';
             updateBtn();
             removeInfoBox(500);  // remove possible info box when new path is begun
             nextPoint();
           } else {
-            curState = 'begin';
+            $scope.curState = 'begin';
             updateBtn();
             resetLine();
+            if (userLine) {
+              userLine.attr('d', ''); //  clear previous line
+            }
+            $scope.avgDifference = null;
           }
         };
 
@@ -177,22 +186,105 @@
         }
 
         function updateBtn () {
-          if (curState === 'begin') {
+          if ($scope.curState === 'begin') {
             $scope.drawBtn = 'Begin Journey';
-          } else if (curState === 'drawing') {
+          } else if ($scope.curState === 'drawing') {
             $scope.drawBtn = 'Drawing';
             $scope.drawBtnDisabled = true;
-          } else if (curState === 'paused') {
+          } else if ($scope.curState === 'paused') {
             $scope.drawBtn = 'Continue Journey';
             $scope.drawBtnDisabled = false;
-          } else if (curState === 'finished') {
-            $scope.drawBtn = 'Start Again';
+          } else if ($scope.curState === 'finished') {
+            $scope.drawBtn = 'Show Me Again';
             $scope.drawBtnDisabled = false;
           } else {
             $scope.drawBtn = 'Error';
             $scope.drawBtnDisabled = true;
           }
         }
+
+        function distanceBetween (p1, p2) {
+          return Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.y - p1.y), 2));
+        }
+
+        function compareLines () {
+          var segNum = 100,
+              userTotalLength = userLine.node().getTotalLength(),
+              userLengthSeg = userTotalLength / segNum,
+              userPoints = [],
+              userLengths = [],
+              genTotalLength = line.node().getTotalLength(),
+              genLengthSeg = genTotalLength / segNum,
+              genPoints = [],
+              genLengths = [],
+              totalDifference = 0,
+              avgDifference = 0;
+
+          for (var i = 0; i < segNum; i++) {
+            userPoints.push(userLine.node().getPointAtLength(userLengthSeg * i));
+            genPoints.push(line.node().getPointAtLength(genLengthSeg * i));
+          }
+          var dist = 0;
+          for (var j = 0; j < segNum; j++) {
+            dist = distanceBetween(userPoints[j], genPoints[j]);
+            totalDifference = totalDifference + dist;
+          }
+          avgDifference = totalDifference / segNum;
+
+          return avgDifference;
+        }
+
+        // this function sets up the canvas in preparation for the user to make their attempt.
+        // It binds eventhandlers to the canvas
+        $scope.userDraw = function () {
+          if (userLine) {
+            userLine.attr('d', ''); //  clear previous line
+          }
+          var mouseDown = false,
+              lastXY = [],
+              curUserPoints = [];
+          $scope.curState = 'userdrawing';
+          $scope.drawBtnDisabled = true;
+          $scope.avgDifference = null;
+          resetLine();
+
+          svgContainer.on('mousedown', function () {
+            mouseDown = true;
+            var xy = d3.mouse(this);
+
+            curUserPoints.push({x: xy[0], y: xy[1]});
+            userLine = svgContainer.append("path")
+              .attr('d', lineFunction(curUserPoints))
+              .attr('id', 'user-map-stroke');
+
+            lastXY = xy;
+          });
+
+          svgContainer.on('mouseup', function () {
+            // unbind event listeners
+            svgContainer.on('mousedown', null);
+            svgContainer.on('mousemove', null);
+            svgContainer.on('mouseup', null);
+            $scope.$apply(function () {
+              $scope.avgDifference = compareLines();
+              $scope.drawBtnDisabled = false;
+              $scope.curState = 'finished';
+            });
+            showLine();
+          });
+
+          svgContainer.on('mousemove', function () {
+            if (!mouseDown) {
+              return;
+            }
+            var xy = d3.mouse(this);
+            if (Math.abs(xy[0] - lastXY[0]) > 2 || Math.abs(xy[1] - lastXY[1]) > 2) {
+              curUserPoints.push({x: xy[0], y: xy[1]});
+              userLine.attr('d', lineFunction(curUserPoints));
+              lastXY = xy;
+            }
+          });
+        };
 
         function init () {
           if ($scope.map) {

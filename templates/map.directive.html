@@ -1,2 +1,6 @@
-<md-button ng-disabled="drawBtnDisabled" ng-click="drawPath(points)">{{ drawBtn }}</md-button>
+<div>
+  <md-button ng-disabled="drawBtnDisabled" ng-click="drawPath()">{{ drawBtn }}</md-button>
+  <md-button ng-if="curState==='finished'" ng-click="userDraw()">I want to try!</md-button>
+  <div id="avgDiff" ng-show="avgDifference"><p>The average difference: {{ avgDifference }}</p></div>
+</div>
 <div id="map"></div>
