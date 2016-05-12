@@ -1,0 +1,27 @@
+<div id="editctrl" flex-order-gt-sm="1" flex="grow">
+  <h2>Create new journey:</h2>
+  <form name="journeyForm">
+    <md-input-container>
+      <label>Jouney Name</label>
+      <input name="name" ng-model="map.name" required>
+      <div ng-messages="journeyForm.name.$error">
+        <div ng-message="required">This is required!</div>
+      </div>
+    </md-input-container>
+    <md-input-container>
+      <label>Short Description</label>
+      <input name="description" ng-model="map.description">
+    </md-input-container>
+    <md-input-container>
+      <label>Author</label>
+      <input name="author" ng-model="map.author">
+    </md-input-container>
+    <md-input-container>
+      <label>Image</label>
+      <input name="image" ngf-select="upload($file)" ng-model="picture" accept="image/*">
+    </md-input-container>
+  </form>
+</div>
+<div class="map-container" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow">
+  <editor map="map"></editor>
+</div>

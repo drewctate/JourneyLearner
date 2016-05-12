@@ -9,6 +9,11 @@
             url: '/maps/:mapId',
             templateUrl: 'modules/maplearner/map.page.html',
             controller: 'mapControl'
+        })
+        .state('edit', {
+            url: '/edit/:mapId',
+            templateUrl: 'modules/mapeditor/edit.page.html',
+            controller: 'editControl'
         });
   });
 })();
