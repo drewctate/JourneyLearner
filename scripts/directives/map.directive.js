@@ -10,6 +10,7 @@
       },
       link: function ($scope, $element) {
         $scope.curState = 'begin';
+        $scope.prevState = 'begin';
         $scope.drawBtnDisabled = false;
         $scope.sliderDisabled = false;
         $scope.avgDifference = null;
@@ -300,27 +301,29 @@
           });
         };
 
-        $scope.sliderUp = function () {
-          $scope.curState = $scope.prevState;
-          updateCtrls();
-        };
-
-        $scope.sliderDown = function () {
-          $scope.prevState = $scope.curState;
-          $scope.avgDifference = null;
-          $scope.curState = 'slider';
-          updateCtrls();
-          if (userLine) {
-            userLine.attr('d', '');
-          }
-        };
-
         function activateSlider () {
           var sliderMax = 300;
           var totalLength = line.node().getTotalLength();
           $scope.$watch('sliderProgress', function (newValue, oldValue) {
             line.attr('stroke-dashoffset', totalLength - (totalLength / sliderMax) * newValue);
           });
+          angular.element('md-slider')
+            .focus(function () {
+              $scope.$apply(function () {
+                $scope.prevState = $scope.curState;
+                $scope.avgDifference = null;
+                $scope.curState = 'slider';
+                updateCtrls();
+              });
+              console.log('slider focused');
+            })
+            .focusout(function () {
+              $scope.$apply(function () {
+                $scope.curState = $scope.prevState;
+                updateCtrls();
+              });
+              console.log('slider unfocused');
+            });
         }
 
         function init () {
