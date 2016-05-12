@@ -16,6 +16,12 @@
 .page-body .map-container {
   width: 700px;
 }
+.page-body .map-container #avgDiff {
+  display: inline;
+}
+.page-body .map-container #avgDiff p {
+  display: inline;
+}
 .page-body .map-container h2,
 .page-body .map-container p {
   margin-left: 10px;
@@ -33,12 +39,17 @@
 }
 .page-body .map-container #map #map-stroke {
   stroke: blue;
-  stroke-width: 4;
+  stroke-width: 3;
+  fill: none;
+}
+.page-body .map-container #map #user-map-stroke {
+  stroke: #ff9900;
+  stroke-width: 3;
   fill: none;
 }
 .page-body .map-container #map info {
-  width: 150;
-  height: 70;
+  width: 150px;
+  height: auto;
   background-color: #FFF;
   border: 2px solid #000;
   border-radius: 4px;
@@ -52,6 +63,11 @@
   position: absolute;
   bottom: -30px;
   background-image: url('img/triangle.png');
+  background-size: 100% 100%;
+}
+.page-body .map-container #loading img {
+  display: block;
+  margin: 0 auto;
 }
 .page-body #sidenav {
   padding: 10px;

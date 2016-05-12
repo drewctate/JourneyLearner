@@ -9,17 +9,22 @@
         map: '=curMap'
       },
       link: function ($scope, $element) {
-
-        var curState = 'begin';
+        $scope.curState = 'begin';
         $scope.drawBtnDisabled = false;
+        $scope.sliderDisabled = false;
+        $scope.avgDifference = null;
+        $scope.sliderProgress = 0;
 
-        var svgContainer;
-        var line = {};
-        var lineFunction;
-        var totalLength = 0;
-        var curDataPoint = null;
-        var curDataPointIndex = 0;
-        var pointLengths = [];
+        var drawSpeed = 50, // in px/sec
+            svgContainer,
+            line = {},
+            userLine,
+            lineFunction,
+            totalLength = 0,
+            curDataPoint = null,
+            curDataPointIndex = 0,
+            pointLengths = [],
+            pointDurations = [];
 
         function drawInfoBox(x, y, info, duration) {
           $scope.infoCoords = [x, y];
@@ -44,6 +49,7 @@
           var prevLength;
           var curLength = pointLengths[curDataPointIndex];
           var totalLength = pointLengths[pointLengths.length - 1];
+          var duration = pointDurations[curDataPointIndex];
 
           if (curDataPointIndex === 0) {  // begin with prevLength = 0
             prevLength = 0;
@@ -56,16 +62,16 @@
           var endCallBack;
           if (curDataPoint) {
             endCallBack = function () {
-              curState = 'paused';
-              updateBtn();
+              $scope.curState = 'paused';
+              updateCtrls();
               drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);
               curDataPointIndex++;
             };
           } else {
             endCallBack = function () {
               $scope.$apply(function () {  // if this isn't house in an $apply, it doesn't update the button
-                curState = 'finished';
-                updateBtn();
+                $scope.curState = 'finished';
+                updateCtrls();
               });
             };
           }
@@ -74,9 +80,12 @@
               .attr('stroke-dasharray', curLength + ' ' + totalLength)
               .attr('stroke-dashoffset', curLength - prevLength)
               .transition()
-                .duration(8000)
+                .duration(duration)
                 .ease('linear')
                 .attr('stroke-dashoffset', 0)
+                .each(function () {
+                  console.log(this);
+                })
                 .each('end', endCallBack);
         }
 
@@ -115,6 +124,23 @@
             } else {
               pointLengths[dpindex] = line.node().getTotalLength();  // get length of line at datapoint
             }
+
+            //  calculate durations for each drawing segment
+            if (dpindex === 0) {
+              pointDurations[dpindex] = pointLengths[dpindex]/drawSpeed;
+            } else if (dpindex === -1 && pointLengths.length > 1) {
+              pointDurations[pointDurations.length] = (pointLengths[pointLengths.length - 1] - pointLengths[pointLengths.length - 2])/drawSpeed;
+            } else if (dpindex === -1) {
+              pointDurations[pointDurations.length] = pointLengths[0]/drawSpeed;
+            } else {
+              pointDurations[dpindex] = (pointLengths[dpindex] - pointLengths[dpindex - 1])/drawSpeed;
+            }
+          }
+
+          //  values in pointDurations are stored in milliseconds, math.floor is used for easier computations during animation
+          for (var j = 0; j < pointDurations.length; j++) {
+            pointDurations[j] = Math.floor(pointDurations[j] * 10);
+            pointDurations[j] *= 100;
           }
 
           // hide line initially
@@ -129,16 +155,25 @@
           curDataPointIndex = 0;
         }
 
+        function showLine () {
+          line.attr('stroke-dashoffset', 0);
+          curDataPointIndex = pointLengths.length - 1;
+        }
+
         $scope.drawPath = function () {
-          if (curState !== 'finished') {
-            curState = 'drawing';
-            updateBtn();
+          if (userLine) {
+            userLine.attr('d', ''); //  clear previous line
+          }
+          if ($scope.curState !== 'finished') {
+            $scope.curState = 'drawing';
+            updateCtrls();
             removeInfoBox(500);  // remove possible info box when new path is begun
             nextPoint();
           } else {
-            curState = 'begin';
-            updateBtn();
+            $scope.curState = 'begin';
+            updateCtrls();
             resetLine();
+            $scope.avgDifference = null;
           }
         };
 
@@ -154,29 +189,146 @@
           buildPath();
         }
 
-        function updateBtn () {
-          if (curState === 'begin') {
+        function updateCtrls () {
+          if ($scope.curState === 'begin') {
             $scope.drawBtn = 'Begin Journey';
-          } else if (curState === 'drawing') {
+            $scope.drawBtnDisabled = false;
+            $scope.sliderDisabled = false;
+          } else if ($scope.curState === 'drawing') {
             $scope.drawBtn = 'Drawing';
             $scope.drawBtnDisabled = true;
-          } else if (curState === 'paused') {
+            $scope.sliderDisabled = true;
+          } else if ($scope.curState === 'paused') {
             $scope.drawBtn = 'Continue Journey';
             $scope.drawBtnDisabled = false;
-          } else if (curState === 'finished') {
-            $scope.drawBtn = 'Start Again';
+            $scope.sliderDisabled = true;
+          } else if ($scope.curState === 'finished') {
+            $scope.drawBtn = 'Show Me Again';
             $scope.drawBtnDisabled = false;
+            $scope.sliderDisabled = false;
+          } else if ($scope.curState === 'userdrawing') {
+            $scope.drawBtnDisabled = true;
+            $scope.sliderDisabled = true;
+          } else if ($scope.curState === 'slider') {
+            $scope.drawBtnDisabled = true;
           } else {
             $scope.drawBtn = 'Error';
             $scope.drawBtnDisabled = true;
           }
         }
 
+        function distanceBetween (p1, p2) {
+          return Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.y - p1.y), 2));
+        }
+
+        function compareLines () {
+          var segNum = 100,
+              userTotalLength = userLine.node().getTotalLength(),
+              userLengthSeg = userTotalLength / segNum,
+              userPoints = [],
+              userLengths = [],
+              genTotalLength = line.node().getTotalLength(),
+              genLengthSeg = genTotalLength / segNum,
+              genPoints = [],
+              genLengths = [],
+              totalDifference = 0,
+              avgDifference = 0;
+
+          for (var i = 0; i < segNum; i++) {
+            userPoints.push(userLine.node().getPointAtLength(userLengthSeg * i));
+            genPoints.push(line.node().getPointAtLength(genLengthSeg * i));
+          }
+          var dist = 0;
+          for (var j = 0; j < segNum; j++) {
+            dist = distanceBetween(userPoints[j], genPoints[j]);
+            totalDifference = totalDifference + dist;
+          }
+          avgDifference = totalDifference / segNum;
+
+          return avgDifference;
+        }
+
+        // this function sets up the canvas in preparation for the user to make their attempt.
+        // It binds eventhandlers to the canvas
+        $scope.userDraw = function () {
+          if (userLine) {
+            userLine.attr('d', ''); //  clear previous line
+          }
+          var mouseDown = false,
+              lastXY = [],
+              curUserPoints = [];
+          $scope.curState = 'userdrawing';
+          updateCtrls();
+          $scope.avgDifference = null;
+          resetLine();
+
+          svgContainer.on('mousedown', function () {
+            mouseDown = true;
+            var xy = d3.mouse(this);
+
+            curUserPoints.push({x: xy[0], y: xy[1]});
+            userLine = svgContainer.append("path")
+              .attr('d', lineFunction(curUserPoints))
+              .attr('id', 'user-map-stroke');
+
+            lastXY = xy;
+          });
+
+          svgContainer.on('mouseup', function () {
+            // unbind event listeners
+            svgContainer.on('mousedown', null);
+            svgContainer.on('mousemove', null);
+            svgContainer.on('mouseup', null);
+            $scope.$apply(function () {
+              $scope.avgDifference = compareLines();
+              $scope.curState = 'finished';
+              updateCtrls();
+            });
+            showLine();
+          });
+
+          svgContainer.on('mousemove', function () {
+            if (!mouseDown) {
+              return;
+            }
+            var xy = d3.mouse(this);
+            if (Math.abs(xy[0] - lastXY[0]) > 2 || Math.abs(xy[1] - lastXY[1]) > 2) {
+              curUserPoints.push({x: xy[0], y: xy[1]});
+              userLine.attr('d', lineFunction(curUserPoints));
+              lastXY = xy;
+            }
+          });
+        };
+
+        $scope.sliderUp = function () {
+          $scope.curState = $scope.prevState;
+          updateCtrls();
+        };
+
+        $scope.sliderDown = function () {
+          $scope.prevState = $scope.curState;
+          $scope.avgDifference = null;
+          $scope.curState = 'slider';
+          updateCtrls();
+          if (userLine) {
+            userLine.attr('d', '');
+          }
+        };
+
+        function activateSlider () {
+          var sliderMax = 300;
+          var totalLength = line.node().getTotalLength();
+          $scope.$watch('sliderProgress', function (newValue, oldValue) {
+            line.attr('stroke-dashoffset', totalLength - (totalLength / sliderMax) * newValue);
+          });
+        }
+
         function init () {
           if ($scope.map) {
             drawMap();
             beginPath();
-            updateBtn();
+            updateCtrls();
+            activateSlider();
           } else {
             $timeout(init, 150);
           }

@@ -1,3 +1,5 @@
+@info-box-width: 150px;
+
 [ng\:cloak], [ng-cloak], .ng-cloak {
   display: none !important;
 }
@@ -15,6 +17,12 @@
 
 .page-body {
   .map-container {
+    #avgDiff {
+      display: inline;
+      p {
+        display: inline;
+      }
+    }
     width: 700px;
     h2, p {
       margin-left: 10px;
@@ -31,12 +39,17 @@
       }
       #map-stroke {
         stroke: blue;
-        stroke-width: 4;
+        stroke-width: 3;
+        fill: none;
+      }
+      #user-map-stroke {
+        stroke: #ff9900;
+        stroke-width: 3;
         fill: none;
       }
       info {
-        width: 150;
-        height: 70;
+        width: @info-box-width;
+        height: auto;
         background-color: #FFF;
         border: 2px solid #000;
         border-radius: 4px;
@@ -44,12 +57,19 @@
         position: absolute;
         z-index: 2;
         .triangle {
-          width: 150px;
+          width: @info-box-width;
           height: 30px;
           position: absolute;
           bottom: -30px;
           background-image: url('img/triangle.png');
+          background-size: 100% 100%;
         }
+      }
+    }
+    #loading {
+      img {
+        display: block;
+        margin: 0 auto;
       }
     }
   }
