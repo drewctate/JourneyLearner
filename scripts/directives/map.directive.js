@@ -9,10 +9,11 @@
         map: '=curMap'
       },
       link: function ($scope, $element) {
-
         $scope.curState = 'begin';
         $scope.drawBtnDisabled = false;
+        $scope.sliderDisabled = false;
         $scope.avgDifference = null;
+        $scope.sliderProgress = 0;
 
         var drawSpeed = 50, // in px/sec
             svgContainer,
@@ -62,7 +63,7 @@
           if (curDataPoint) {
             endCallBack = function () {
               $scope.curState = 'paused';
-              updateBtn();
+              updateCtrls();
               drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc);
               curDataPointIndex++;
             };
@@ -70,7 +71,7 @@
             endCallBack = function () {
               $scope.$apply(function () {  // if this isn't house in an $apply, it doesn't update the button
                 $scope.curState = 'finished';
-                updateBtn();
+                updateCtrls();
               });
             };
           }
@@ -82,6 +83,9 @@
                 .duration(duration)
                 .ease('linear')
                 .attr('stroke-dashoffset', 0)
+                .each(function () {
+                  console.log(this);
+                })
                 .each('end', endCallBack);
         }
 
@@ -157,18 +161,18 @@
         }
 
         $scope.drawPath = function () {
+          if (userLine) {
+            userLine.attr('d', ''); //  clear previous line
+          }
           if ($scope.curState !== 'finished') {
             $scope.curState = 'drawing';
-            updateBtn();
+            updateCtrls();
             removeInfoBox(500);  // remove possible info box when new path is begun
             nextPoint();
           } else {
             $scope.curState = 'begin';
-            updateBtn();
+            updateCtrls();
             resetLine();
-            if (userLine) {
-              userLine.attr('d', ''); //  clear previous line
-            }
             $scope.avgDifference = null;
           }
         };
@@ -185,18 +189,28 @@
           buildPath();
         }
 
-        function updateBtn () {
+        function updateCtrls () {
           if ($scope.curState === 'begin') {
             $scope.drawBtn = 'Begin Journey';
+            $scope.drawBtnDisabled = false;
+            $scope.sliderDisabled = false;
           } else if ($scope.curState === 'drawing') {
             $scope.drawBtn = 'Drawing';
             $scope.drawBtnDisabled = true;
+            $scope.sliderDisabled = true;
           } else if ($scope.curState === 'paused') {
             $scope.drawBtn = 'Continue Journey';
             $scope.drawBtnDisabled = false;
+            $scope.sliderDisabled = true;
           } else if ($scope.curState === 'finished') {
             $scope.drawBtn = 'Show Me Again';
             $scope.drawBtnDisabled = false;
+            $scope.sliderDisabled = false;
+          } else if ($scope.curState === 'userdrawing') {
+            $scope.drawBtnDisabled = true;
+            $scope.sliderDisabled = true;
+          } else if ($scope.curState === 'slider') {
+            $scope.drawBtnDisabled = true;
           } else {
             $scope.drawBtn = 'Error';
             $scope.drawBtnDisabled = true;
@@ -244,7 +258,7 @@
               lastXY = [],
               curUserPoints = [];
           $scope.curState = 'userdrawing';
-          $scope.drawBtnDisabled = true;
+          updateCtrls();
           $scope.avgDifference = null;
           resetLine();
 
@@ -267,8 +281,8 @@
             svgContainer.on('mouseup', null);
             $scope.$apply(function () {
               $scope.avgDifference = compareLines();
-              $scope.drawBtnDisabled = false;
               $scope.curState = 'finished';
+              updateCtrls();
             });
             showLine();
           });
@@ -286,11 +300,35 @@
           });
         };
 
+        $scope.sliderUp = function () {
+          $scope.curState = $scope.prevState;
+          updateCtrls();
+        };
+
+        $scope.sliderDown = function () {
+          $scope.prevState = $scope.curState;
+          $scope.avgDifference = null;
+          $scope.curState = 'slider';
+          updateCtrls();
+          if (userLine) {
+            userLine.attr('d', '');
+          }
+        };
+
+        function activateSlider () {
+          var sliderMax = 300;
+          var totalLength = line.node().getTotalLength();
+          $scope.$watch('sliderProgress', function (newValue, oldValue) {
+            line.attr('stroke-dashoffset', totalLength - (totalLength / sliderMax) * newValue);
+          });
+        }
+
         function init () {
           if ($scope.map) {
             drawMap();
             beginPath();
-            updateBtn();
+            updateCtrls();
+            activateSlider();
           } else {
             $timeout(init, 150);
           }
