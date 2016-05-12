@@ -1,10 +1,10 @@
-(function(angular) {
+(function () {
   'use strict';
-  angular.module('JourneyLearner')
+  angular.module('JourneyLearner.maplearner')
     .directive('info', ['$timeout', function ($timeout) {
       return {
         restrict: 'E',
-        templateUrl: 'templates/info-box.html',
+        templateUrl: 'modules/maplearner/map/info-box/info-box.html',
         scope: {
           coords: '=',
           text: '=',
@@ -29,4 +29,4 @@
         }
       };
   }]);
-})(angular);
+})();

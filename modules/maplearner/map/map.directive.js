@@ -1,10 +1,10 @@
-(function(angular) {
+(function () {
   'use strict';
-  angular.module('JourneyLearner')
+  angular.module('JourneyLearner.maplearner')
   .directive('map', ['$timeout', '$compile', function($timeout, $compile) {
     return {
       restrict: 'E',
-      templateUrl: 'templates/map.directive.html',
+      templateUrl: 'modules/maplearner/map/map.directive.html',
       scope: {
         map: '=curMap'
       },
@@ -42,7 +42,7 @@
         function drawMap() {
           svgContainer = d3.select('#map').append('svg')
             .attr('id', 'map-svg')
-            .style('background-image', 'url(\'styles/img/maps/' + $scope.map.image + '\')');
+            .style('background-image', 'url(\'img/maps/' + $scope.map.image + '\')');
         }
 
         function nextPoint() {
@@ -268,7 +268,7 @@
             var xy = d3.mouse(this);
 
             curUserPoints.push({x: xy[0], y: xy[1]});
-            userLine = svgContainer.append("path")
+            userLine = svgContainer.append('path')
               .attr('d', lineFunction(curUserPoints))
               .attr('id', 'user-map-stroke');
 
@@ -341,4 +341,4 @@
       }
     };
   }]);
-})(angular);
+})();

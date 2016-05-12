@@ -1,4 +1,4 @@
-(function(angular) {
+(function() {
   'use strict';
 
   angular.module('JourneyLearner', ['ui.router', 'ngMaterial'])
@@ -7,8 +7,8 @@
     $stateProvider
         .state('maps', {
             url: '/maps/:mapId',
-            templateUrl: 'templates/map.page.html',
+            templateUrl: 'modules/maplearner/map.page.html',
             controller: 'mapControl'
         });
   });
-})(angular);
+})();
