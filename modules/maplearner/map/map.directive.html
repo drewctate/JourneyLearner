@@ -1,0 +1,12 @@
+<div>
+  <div>
+    <md-button ng-disabled="drawBtnDisabled" ng-click="drawPath()">{{ drawBtn }}</md-button>
+    <md-button ng-if="curState==='finished'" ng-click="userDraw()">I want to try!</md-button>
+    <div id="avgDiff" ng-show="avgDifference"><p>The average difference: {{ avgDifference }}</p></div>
+  </div>
+  <div>
+    <md-slider ng-disabled="sliderDisabled" flex ng-model="sliderProgress" step="1" min="0" max="300" aria-label="progress">
+    </md-slider>
+  </div>
+  <div id="map"></div>
+</div>

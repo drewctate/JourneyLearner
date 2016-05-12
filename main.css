@@ -1,0 +1,89 @@
+#map-edit svg {
+  width: 700px;
+  height: 400px;
+}
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak {
+  display: none !important;
+}
+#background-default {
+  width: 700px;
+  height: 400px;
+  background-image: url("img/maps/default.png");
+}
+.toolbar {
+  height: 40px;
+  margin-bottom: 10px;
+  background-color: #3f51b5;
+}
+.toolbar h1 {
+  color: white;
+  margin: 0 0 0 20px;
+  font-size: 30px;
+}
+.page-body .map-container {
+  width: 700px;
+}
+.page-body .map-container #avgDiff {
+  display: inline;
+}
+.page-body .map-container #avgDiff p {
+  display: inline;
+}
+.page-body .map-container h2,
+.page-body .map-container p {
+  margin-left: 10px;
+}
+.page-body .map-container h2 {
+  margin-bottom: 0;
+}
+.page-body .map-container #map {
+  position: relative;
+}
+.page-body .map-container #map #map-svg {
+  width: 700px;
+  height: 400px;
+  z-index: 1;
+}
+.page-body .map-container #map #map-stroke {
+  stroke: blue;
+  stroke-width: 3;
+  fill: none;
+}
+.page-body .map-container #map #user-map-stroke {
+  stroke: #ff9900;
+  stroke-width: 3;
+  fill: none;
+}
+.page-body .map-container #map info {
+  width: 150px;
+  height: auto;
+  background-color: #FFF;
+  border: 2px solid #000;
+  border-radius: 4px;
+  display: none;
+  position: absolute;
+  z-index: 2;
+}
+.page-body .map-container #map info .triangle {
+  width: 150px;
+  height: 30px;
+  position: absolute;
+  bottom: -30px;
+  background-image: url('img/triangle.png');
+  background-size: 100% 100%;
+}
+.page-body .map-container #loading img {
+  display: block;
+  margin: 0 auto;
+}
+.page-body #sidenav {
+  padding: 10px;
+  width: 700px;
+}
+@media (min-width: 960px) {
+  .page-body #sidenav {
+    width: 320px;
+  }
+}
