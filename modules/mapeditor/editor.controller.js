@@ -1,9 +1,9 @@
 (function () {
   angular.module('JourneyLearner.mapeditor')
     .controller('editControl', ['$scope', function ($scope) {
-      map = {};
+      $scope.map = {};
       $scope.upload = function(file) {
-        console.log (file);
+        console.log(file);
       };
     }]);
 })();
