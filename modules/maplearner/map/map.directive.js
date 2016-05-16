@@ -302,10 +302,12 @@
         function activateSlider () {
           var sliderMax = 300;
           var totalLength = line.node().getTotalLength();
+          var slider = angular.element('md-slider');
           $scope.$watch('sliderProgress', function (newValue, oldValue) {
             line.attr('stroke-dashoffset', totalLength - (totalLength / sliderMax) * newValue);
           });
-          angular.element('md-slider')
+
+          slider
             .focus(function () {
               $scope.$apply(function () {
                 $scope.prevState = $scope.curState;
@@ -319,6 +321,9 @@
                 $scope.curState = $scope.prevState;
                 updateCtrls();
               });
+            })
+            .on('mouseup', function () {
+              slider.blur();
             });
         }
 
