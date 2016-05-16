@@ -42,7 +42,8 @@
         function drawMap() {
           svgContainer = d3.select('#map').append('svg')
             .attr('id', 'map-svg')
-            .style('background-image', 'url(\'img/maps/' + $scope.map.image + '\')');
+            .attr('viewBox', '0 0 700 400')
+            .style('background-image', 'url(\'' + $scope.map.image + '\')');
         }
 
         function nextPoint() {
@@ -84,9 +85,6 @@
                 .duration(duration)
                 .ease('linear')
                 .attr('stroke-dashoffset', 0)
-                .each(function () {
-                  console.log(this);
-                })
                 .each('end', endCallBack);
         }
 
@@ -315,14 +313,12 @@
                 $scope.curState = 'slider';
                 updateCtrls();
               });
-              console.log('slider focused');
             })
             .focusout(function () {
               $scope.$apply(function () {
                 $scope.curState = $scope.prevState;
                 updateCtrls();
               });
-              console.log('slider unfocused');
             });
         }
 
