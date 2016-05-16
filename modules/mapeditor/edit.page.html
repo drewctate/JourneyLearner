@@ -20,7 +20,7 @@
         </md-input-container>
         <md-input-container>
           <label>Image</label>
-          <input name="image" ngf-select="upload($file)" ng-model="map.image" accept="image/*">
+          <input name="image" ngf-select="upload($file)" ngf-resize="{ratio: '700:400', centerCrop: true}" ng-model="map.image" accept="image/*">
         </md-input-container>
       </form>
     </div>

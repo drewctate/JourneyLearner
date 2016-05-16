@@ -1,6 +1,6 @@
 (function () {
   angular.module('JourneyLearner.mapeditor')
-    .directive('editor', ['$interval', function ($interval) {
+    .directive('editor', ['$interval', 'mapsAPI', 'S3', 'Upload', function ($interval, mapsAPI, S3, Upload) {
       return {
         restrict: 'E',
         templateUrl: 'modules/mapeditor/editor/editor.directive.html',
@@ -101,6 +101,35 @@
               }
             }
           }
+
+          function convertPoints(points) {
+            var converted = [];
+            for (var i = 0; i < points.length; i++) {
+              converted.push({'x': points[i][0], 'y': points[i][1]});
+            }
+            return converted;
+          }
+
+          $scope.save = function () {
+            var file = $scope.map.image;
+            mapsAPI.getSignedRequest(file).then(function (res) {
+              S3.uploadImage(res.data.signed_request, file).then(function (awsRes) {
+                var newMap = {
+                  name: $scope.map.name,
+                  author: $scope.map.author,
+                  description: $scope.map.description,
+                  image: res.data.url,
+                };
+                newMap.points = convertPoints(points);
+                Upload.imageDimensions(file).then(function (dimensions) {
+                  newMap.dimensions = [dimensions.width, dimensions.height];
+                });
+              },
+              function (err) {
+                console.log('Upload to S3 failed:' + err);
+              });
+            });
+          };
 
           function init () {
             $scope.map.image = null;

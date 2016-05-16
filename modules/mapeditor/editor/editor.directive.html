@@ -1,11 +1,10 @@
-<div id="ctrls">
+<div id="ctrls" class="clearfix">
   <div class="left">
     <h3>Click anywhere on the map to add points:</h3>
   </div>
   <div class="right">
     <md-button>Add Info-Box</md-button>
-    <md-button>Live Preview</md-button>
+    <md-button ng-click="save()">Save</md-button>
   </div>
-  <div style="clear:both;"></div>
 </div>
 <div ngf-background="map.image" id="map-edit"></div>
