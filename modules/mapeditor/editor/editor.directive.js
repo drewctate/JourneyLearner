@@ -1,6 +1,6 @@
 (function () {
   angular.module('JourneyLearner.mapeditor')
-    .directive('editor', ['$interval', 'mapsAPI', 'S3', 'Upload', function ($interval, mapsAPI, S3, Upload) {
+    .directive('editor', ['$interval', 'mapsAPI', 'S3', 'Upload', '$mdDialog', function ($interval, mapsAPI, S3, Upload, $mdDialog) {
       return {
         restrict: 'E',
         templateUrl: 'modules/mapeditor/editor/editor.directive.html',
@@ -14,8 +14,13 @@
             width = 700,
             circles,
             points = [],
+            dataPoints = [],
             dragged = null,
+            initDragged = null,
             selected = points[0];
+
+          $scope.dataPointMode = false;
+          $scope.desc = '';
 
           function drawMap() {
             svg = d3.select('#map-edit').append('svg')
@@ -37,7 +42,7 @@
               .interpolate('cardinal');
 
             d3.select(window)
-                .on("mousemove", mousemove)
+                .on("mousemove", function () {mousemove(false);})
                 .on("mouseup", mouseup)
                 .on('keydown', keydown);
           }
@@ -49,8 +54,16 @@
                 .data(points, function(d) { return d; });
 
             circle.enter().append("circle")
-                .attr("r", 1e-6)
-                .on("mousedown", function(d) { selected = dragged = d; redraw(); })
+              .attr("r", 1e-6)
+              .on("mousedown", function(d) {
+                selected = dragged = d;
+                if (initDragged === null) {
+                  initDragged = [];
+                  initDragged[0] = selected[0];
+                  initDragged[1] = selected[1];
+                }
+                redraw();
+              })
               .transition()
                 .duration(750)
                 .ease("elastic")
@@ -69,27 +82,76 @@
             }
           }
 
-          function mousedown () {
-            points.push(selected = dragged = d3.mouse(svg.node()));
-            redraw();
+          function infoBoxModal($scope, $mdDialog) {
+            $scope.cancel = function () {
+              $mdDialog.hide();
+            };
+            $scope.return = function (info) {
+              $mdDialog.hide(info);
+            };
           }
 
-          function mousemove () {
+          function mousedown () {
+            var newPoint = d3.mouse(svg.node());
+            if ($scope.dataPointMode) {
+              $mdDialog.show({
+                templateUrl: 'modules/mapeditor/editor/infoboxmodal/infoboxmodal.html',
+                controller: infoBoxModal,
+                parent: angular.element('editor')
+              }).then(function (description) {
+                if (description) {
+                  dataPoints.push({
+                    coords: newPoint,
+                    desc: description
+                  });
+                  selected = newPoint;
+                  points.push(newPoint);
+                  redraw();
+                }
+              });
+            } else {
+              points.push(selected = dragged = newPoint);
+              redraw();
+            }
+          }
+
+          function updateDataPoint(point, newCoords) {
+            console.log('---------------------------------------');
+            for (var i = 0; i < dataPoints.length; i++) {
+              console.log('initDragged: ', initDragged);
+              console.log('dataPoint Coords', dataPoints[i].coords)
+              if (point[0] === dataPoints[i].coords[0] && point[1] === dataPoints[i].coords[1]){
+                console.log('updated!');
+                dataPoints[i].coords[0] = newCoords[0];
+                dataPoints[i].coords[1] = newCoords[1];
+              }
+            }
+          }
+
+          function mousemove (mouseup) {
             if (!dragged) return;
             var m = d3.mouse(svg.node());
-            dragged[0] = Math.max(0, Math.min(width, m[0]));
-            dragged[1] = Math.max(0, Math.min(height, m[1]));
+            var newCoords = [];
+            newCoords[0] = Math.max(0, Math.min(width, m[0]));
+            newCoords[1] = Math.max(0, Math.min(height, m[1]));
+            if (mouseup)
+              updateDataPoint(initDragged, newCoords); // only does something if initDragged is data point
+            dragged[0] = newCoords[0];
+            dragged[1] = newCoords[1];
             redraw();
           }
 
           function mouseup () {
             if (!dragged) return;
-            mousemove();
+            mousemove(true);
             dragged = null;
+            initDragged = null;
           }
 
           function keydown () {
             if (!selected) return;
+            // can't delete points while md-dialog open
+            if (angular.element(document).find('md-dialog').length > 0) return;
             switch (d3.event.keyCode) {
               case 8: // backspace
               case 46: { // delete
@@ -105,9 +167,29 @@
           function convertPoints(points) {
             var converted = [];
             for (var i = 0; i < points.length; i++) {
-              converted.push({'x': points[i][0], 'y': points[i][1]});
+              converted.push({x: points[i][0], y: points[i][1]});
             }
             return converted;
+          }
+
+          function isIn(dataPoint, points) {
+            var isIn = false;
+            for (var i = 0; i < points.length; i++) {
+              if (points[i] == dataPoint.coords)
+                isIn = true;
+            }
+            return isIn;
+          }
+
+          function cullDataPoints(dataPoints, points) {
+            if (dataPoints.length === 0) return [];
+            var culledDataPoints = [];
+            for (var i = 0; i < dataPoints.length; i++) {
+              if (isIn(dataPoints[i], points)) {
+                culledDataPoints.push(dataPoints[i]);
+              }
+            }
+            return culledDataPoints;
           }
 
           $scope.save = function () {
@@ -124,6 +206,7 @@
                 Upload.imageDimensions(file).then(function (dimensions) {
                   newMap.dimensions = [dimensions.width, dimensions.height];
                 });
+                newMap.dataPoints = cullDataPoints(dataPoints, points);
               },
               function (err) {
                 console.log('Upload to S3 failed:' + err);
