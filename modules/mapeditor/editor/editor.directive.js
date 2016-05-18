@@ -134,7 +134,7 @@
             var newCoords = [];
             newCoords[0] = Math.max(0, Math.min(width, m[0]));
             newCoords[1] = Math.max(0, Math.min(height, m[1]));
-            if (mouseup)
+            if (mouseup && initDragged)
               updateDataPoint(initDragged, newCoords); // only does something if initDragged is data point
             dragged[0] = newCoords[0];
             dragged[1] = newCoords[1];
