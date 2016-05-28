@@ -12,4 +12,6 @@
     <md-button ng-click="save()">Save</md-button>
   </div>
 </div>
-<div ngf-background="map.image" id="map-edit"></div>
+<div ngf-background="map.image" id="map-edit">
+  <md-progress-linear ng-show="saving" md-mode="indeterminate"></md-progress-linear>
+</div>

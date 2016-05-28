@@ -20,7 +20,7 @@
             selected = points[0];
 
           $scope.dataPointMode = false;
-          $scope.desc = '';
+          $scope.saving = false;
 
           function drawMap() {
             svg = d3.select('#map-edit').append('svg')
@@ -193,11 +193,12 @@
           }
 
           $scope.save = function () {
+            $scope.saving = true;
             var file = $scope.map.image;
             mapsAPI.getSignedRequest(file).then(function (res) {
               S3.uploadImage(res.data.signed_request, file).then(function (awsRes) {
                 var newMap = {
-                  name: $scope.map.name,
+                  title: $scope.map.title,
                   author: $scope.map.author,
                   description: $scope.map.description,
                   image: res.data.url,
@@ -205,12 +206,23 @@
                 newMap.points = convertPoints(points);
                 Upload.imageDimensions(file).then(function (dimensions) {
                   newMap.dimensions = [dimensions.width, dimensions.height];
+                  newMap.datapoints = cullDataPoints(dataPoints, points);
+                  console.log(newMap);
+                  // insert code to save map to db here
+                  mapsAPI.saveMap(newMap).then(function () {
+                    $scope.saving = false;
+                  });
                 });
-                newMap.dataPoints = cullDataPoints(dataPoints, points);
               },
               function (err) {
-                console.log('Upload to S3 failed:' + err);
+                console.log('Upload to S3 failed:');
+                $scope.apply(function () {
+                  $scope.saving = false;
+                });
               });
+            },
+            function () {
+              $scope.saving = false;
             });
           };
 

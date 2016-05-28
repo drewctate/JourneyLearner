@@ -1,7 +1,7 @@
 angular.module('JourneyLearner')
   .service('mapsAPI', ['$http', function ($http) {
-    var backEnd = 'https://journeylearner-api.herokuapp.com';
-    // var backEnd = 'http://localhost:8080';
+    // var backEnd = 'https://journeylearner-api.herokuapp.com';
+    var backEnd = 'http://localhost:8080';
 
     var getMap = function () {
       return $http.get(backEnd + '/maps');
@@ -11,8 +11,13 @@ angular.module('JourneyLearner')
       return $http.get(backEnd + '/sign_s3?file_name=' + file.name + '&file_type=' + file.type);
     };
 
+    var saveMap = function (map) {
+      return $http.post(backEnd + '/maps', map);
+    }
+
     return {
       getMap: getMap,
-      getSignedRequest: getSignedRequest
+      getSignedRequest: getSignedRequest,
+      saveMap: saveMap
     };
   }]);
