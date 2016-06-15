@@ -1,7 +1,6 @@
 angular.module('JourneyLearner')
   .service('mapsAPI', ['$http', function ($http) {
-    // var backEnd = 'https://journeylearner-api.herokuapp.com';
-    var backEnd = 'http://localhost:8080';
+    var backEnd = 'https://journeylearner-api.herokuapp.com';
 
     var getMap = function () {
       return $http.get(backEnd + '/maps');

@@ -1,2 +1,5 @@
-angular.module('JourneyLearner').requires.push('JourneyLearner.mapeditor');
-angular.module('JourneyLearner.mapeditor', ['ngFileUpload']);
+(function () {
+    'use strict';
+    angular.module('JourneyLearner').requires.push('JourneyLearner.mapeditor');
+    angular.module('JourneyLearner.mapeditor', ['ngFileUpload']);
+})();

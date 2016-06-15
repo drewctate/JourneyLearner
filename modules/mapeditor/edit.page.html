@@ -2,6 +2,7 @@
   <div>
     <div id="editctrl" flex-order-gt-sm="1" flex="grow">
       <h2>Create new journey:</h2>
+      <p class="error" ng-model="error" ng-show="error">{{ error }}</p>
       <form name="journeyForm">
         <md-input-container>
           <label>Jouney Name</label>
@@ -34,8 +35,8 @@
       </form>
     </div>
     <div class="map-container" ng-show="map.image" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow">
-      <editor map="map"></editor>
+      <editor map="map" error="error"></editor>
     </div>
-    <div ng-show="!map.image" id="background-default" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow"></div>
+    <div class="map-container" ng-show="!map.image" id="background-default" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow"></div>
   </div>
 </div>

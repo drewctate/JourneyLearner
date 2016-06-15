@@ -1,18 +1,19 @@
 (function () {
+  'use strict';
   angular.module('JourneyLearner.mapeditor')
     .directive('editor', ['$interval', 'mapsAPI', 'S3', 'Upload', '$mdDialog', function ($interval, mapsAPI, S3, Upload, $mdDialog) {
       return {
         restrict: 'E',
         templateUrl: 'modules/mapeditor/editor/editor.directive.html',
         scope: {
-          map: '='
+          map: '=',
+          error: '='
         },
         link: function ($scope) {
           var svg,
             lineFunction,
             height = 400,
             width = 700,
-            circles,
             points = [],
             dataPoints = [],
             dragged = null,
@@ -22,40 +23,15 @@
           $scope.dataPointMode = false;
           $scope.saving = false;
 
-          function drawMap() {
-            svg = d3.select('#map-edit').append('svg')
-              .attr('id', 'map-svg')
-              .attr("width", width)
-              .attr("height", height);
-
-            svg.append("rect")
-                .attr("width", width)
-                .attr("height", height)
-                .on("mousedown", mousedown);
-
-            svg.append("path")
-                .datum(points)
-                .attr("class", "line")
-                .call(redraw);
-
-            lineFunction = d3.svg.line()
-              .interpolate('cardinal');
-
-            d3.select(window)
-                .on("mousemove", function () {mousemove(false);})
-                .on("mouseup", mouseup)
-                .on('keydown', keydown);
-          }
-
           function redraw() {
-            svg.select("path").attr("d", lineFunction);
+            svg.select('path').attr('d', lineFunction);
 
-            var circle = svg.selectAll("circle")
+            var circle = svg.selectAll('circle')
                 .data(points, function(d) { return d; });
 
-            circle.enter().append("circle")
-              .attr("r", 1e-6)
-              .on("mousedown", function(d) {
+            circle.enter().append('circle')
+              .attr('r', 1e-6)
+              .on('mousedown', function(d) {
                 selected = dragged = d;
                 if (initDragged === null) {
                   initDragged = [];
@@ -66,13 +42,13 @@
               })
               .transition()
                 .duration(750)
-                .ease("elastic")
-                .attr("r", 6.5);
+                .ease('elastic')
+                .attr('r', 6.5);
 
             circle
-                .classed("selected", function(d) { return d === selected; })
-                .attr("cx", function(d) { return d[0]; })
-                .attr("cy", function(d) { return d[1]; });
+                .classed('selected', function(d) { return d === selected; })
+                .attr('cx', function(d) { return d[0]; })
+                .attr('cy', function(d) { return d[1]; });
 
             circle.exit().remove();
 
@@ -116,12 +92,8 @@
           }
 
           function updateDataPoint(point, newCoords) {
-            console.log('---------------------------------------');
             for (var i = 0; i < dataPoints.length; i++) {
-              console.log('initDragged: ', initDragged);
-              console.log('dataPoint Coords', dataPoints[i].coords)
               if (point[0] === dataPoints[i].coords[0] && point[1] === dataPoints[i].coords[1]){
-                console.log('updated!');
                 dataPoints[i].coords[0] = newCoords[0];
                 dataPoints[i].coords[1] = newCoords[1];
               }
@@ -164,6 +136,31 @@
             }
           }
 
+          function drawMap() {
+            svg = d3.select('#map-edit').append('svg')
+              .attr('id', 'map-svg')
+              .attr('width', width)
+              .attr('height', height);
+
+            svg.append('rect')
+                .attr('width', width)
+                .attr('height', height)
+                .on('mousedown', mousedown);
+
+            svg.append('path')
+                .datum(points)
+                .attr('class', 'line')
+                .call(redraw);
+
+            lineFunction = d3.svg.line()
+              .interpolate('cardinal');
+
+            d3.select(window)
+                .on('mousemove', function () {mousemove(false);})
+                .on('mouseup', mouseup)
+                .on('keydown', keydown);
+          }
+
           function convertPoints(points) {
             var converted = [];
             for (var i = 0; i < points.length; i++) {
@@ -193,37 +190,40 @@
           }
 
           $scope.save = function () {
-            $scope.saving = true;
-            var file = $scope.map.image;
-            mapsAPI.getSignedRequest(file).then(function (res) {
-              S3.uploadImage(res.data.signed_request, file).then(function (awsRes) {
-                var newMap = {
-                  title: $scope.map.title,
-                  author: $scope.map.author,
-                  description: $scope.map.description,
-                  image: res.data.url,
-                };
-                newMap.points = convertPoints(points);
-                Upload.imageDimensions(file).then(function (dimensions) {
-                  newMap.dimensions = [dimensions.width, dimensions.height];
-                  newMap.datapoints = cullDataPoints(dataPoints, points);
-                  console.log(newMap);
-                  // insert code to save map to db here
-                  mapsAPI.saveMap(newMap).then(function () {
+            if ($scope.$parent.journeyForm.$invalid || $scope.map.image == null) {
+              $scope.error = 'Oops! Make sure you fill out all the data for your journey!';
+              return;
+            } else {
+              $scope.saving = true;
+              var file = $scope.map.image;
+              mapsAPI.getSignedRequest(file).then(function (res) {
+                S3.uploadImage(res.data.signed_request, file).then(function (awsRes) {
+                  var newMap = {
+                    title: $scope.map.title,
+                    author: $scope.map.author,
+                    description: $scope.map.description,
+                    image: res.data.url,
+                  };
+                  newMap.points = convertPoints(points);
+                  Upload.imageDimensions(file).then(function (dimensions) {
+                    newMap.dimensions = [dimensions.width, dimensions.height];
+                    newMap.datapoints = cullDataPoints(dataPoints, points);
+                    // insert code to save map to db here
+                    mapsAPI.saveMap(newMap).then(function () {
+                      $scope.saving = false;
+                    });
+                  });
+                },
+                function () {
+                  $scope.apply(function () {
                     $scope.saving = false;
                   });
                 });
               },
-              function (err) {
-                console.log('Upload to S3 failed:');
-                $scope.apply(function () {
-                  $scope.saving = false;
-                });
+              function () {
+                $scope.saving = false;
               });
-            },
-            function () {
-              $scope.saving = false;
-            });
+            }
           };
 
           function init () {
