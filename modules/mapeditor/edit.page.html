@@ -7,20 +7,29 @@
           <label>Jouney Name</label>
           <input name="title" ng-model="map.title" required>
           <div ng-messages="journeyForm.title.$error">
-            <div ng-message="required">This is required!</div>
+            <div ng-message="required">Your journey needs a title!</div>
           </div>
         </md-input-container>
         <md-input-container>
           <label>Short Description</label>
-          <input name="description" ng-model="map.description">
+          <input name="description" ng-model="map.description" required>
+          <div ng-messages="journeyForm.description.$error">
+            <div ng-message="required">This is required!</div>
+          </div>
         </md-input-container>
         <md-input-container>
           <label>Author</label>
-          <input name="author" ng-model="map.author">
+          <input name="author" ng-model="map.author" required>
+          <div ng-messages="journeyForm.author.$error">
+            <div ng-message="required">Give yourself some credit.</div>
+          </div>
         </md-input-container>
         <md-input-container>
           <label>Image</label>
-          <input name="image" ngf-select="upload($file)" ngf-resize="{ratio: '700:400', centerCrop: true}" ng-model="map.image" accept="image/*">
+          <input name="image" required ngf-select="upload($file)" ngf-resize="{ratio: '700:400', centerCrop: true}" ng-model="map.image" accept="image/*">
+          <div ng-messages="journeyForm.image.$error">
+            <div ng-message="required">A journey's no good without a map.</div>
+          </div>
         </md-input-container>
       </form>
     </div>
