@@ -87,3 +87,179 @@
     width: 320px;
   }
 }
+#edit-container #background-default {
+  width: 700px;
+  height: 400px;
+  background-image: url("img/maps/default.png");
+}
+#edit-container #editctrl h2 {
+  margin: 10px 0 0 0;
+}
+#edit-container #editctrl form {
+  margin-bottom: 0;
+}
+#edit-container #editctrl form #file-upload {
+  display: none;
+}
+#edit-container .map-container {
+  margin: 0 auto;
+}
+#edit-container .map-container editor #ctrls h3 {
+  display: block;
+  margin: 12px 0 0 12px;
+}
+#edit-container .map-container editor #ctrls md-switch {
+  display: inline;
+}
+#edit-container .map-container editor #ctrls md-switch .md-container {
+  margin-top: 12px;
+}
+#edit-container .map-container editor #ctrls md-switch .md-label {
+  margin-top: 9px;
+}
+#edit-container .map-container editor svg {
+  height: 400px;
+  width: 700px;
+}
+#edit-container .map-container editor svg path {
+  stroke-dasharray: 10px 5px;
+  stroke-width: 3;
+  stroke: blue;
+  fill: none;
+}
+#edit-container .map-container editor svg rect {
+  fill: none;
+  pointer-events: all;
+}
+#edit-container .map-container editor svg circle {
+  fill: blue;
+  stroke: blue;
+  fill-opacity: .2;
+  cursor: move;
+}
+#edit-container .map-container editor svg .selected {
+  fill: #ff7f0e;
+  stroke: #ff7f0e;
+}
+#edit-container .map-container editor md-dialog md-input-container {
+  margin: 18px 0 0 12px;
+}
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak {
+  display: none !important;
+}
+.clearfix {
+  overflow: auto;
+  zoom: 1;
+}
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+.error {
+  font-size: 12px;
+  color: red;
+  margin: 0;
+  padding: 0;
+}
+.toolbar {
+  height: 40px;
+  margin-bottom: 10px;
+  background-color: #3f51b5;
+}
+.toolbar h1 {
+  color: white;
+  margin: 0 0 0 20px;
+  font-size: 30px;
+}
+.page-body .map-container {
+  width: 700px;
+}
+@media (max-width: 700px) {
+  .page-body .map-container .sliderContainer {
+    margin: 0 6px;
+  }
+}
+.page-body .map-container #avgDiff {
+  display: inline;
+}
+.page-body .map-container #avgDiff p {
+  display: inline;
+}
+.page-body .map-container h2,
+.page-body .map-container p {
+  margin-left: 10px;
+}
+.page-body .map-container h2 {
+  margin-bottom: 0;
+}
+.page-body .map-container #map {
+  position: relative;
+}
+.page-body .map-container #map #map-svg {
+  width: auto;
+  z-index: 1;
+  background-size: cover;
+}
+.page-body .map-container #map #map-stroke {
+  stroke: blue;
+  stroke-width: 3;
+  fill: none;
+}
+.page-body .map-container #map #user-map-stroke {
+  stroke: #ff9900;
+  stroke-width: 3;
+  fill: none;
+}
+.page-body .map-container #map info {
+  width: 150px;
+  font-size: 16px;
+  height: auto;
+  background-color: #FFF;
+  border: 2px solid #000;
+  border-radius: 4px;
+  display: none;
+  position: absolute;
+  z-index: 2;
+}
+.page-body .map-container #map info .triangle {
+  width: 150px;
+  height: 30px;
+  position: absolute;
+  bottom: -30px;
+  background-image: url('img/triangle.png');
+  background-size: 100% 100%;
+}
+.page-body .map-container #map #instruct {
+  display: none;
+  box-sizing: border-box;
+  width: 50%;
+  height: auto;
+  top: 25%;
+  left: 25%;
+  background-color: #FFF;
+  font-size: 18px;
+  padding: 10px;
+  position: absolute;
+}
+.page-body .map-container #loading img {
+  display: block;
+  margin: 0 auto;
+}
+.page-body #sidenav {
+  padding: 10px;
+  width: 700px;
+  height: 10px;
+  overflow-y: visible;
+}
+@media (min-width: 960px) {
+  .page-body #sidenav {
+    width: 320px;
+  }
+}
+.page-body #sidenav i {
+  margin-left: 6px;
+}
