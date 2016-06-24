@@ -1,13 +1,14 @@
 (function () {
   'use strict';
   angular.module('JourneyLearner.mapeditor')
-    .directive('editor', ['$interval', 'mapsAPI', 'S3', 'Upload', '$mdDialog', function ($interval, mapsAPI, S3, Upload, $mdDialog) {
+    .directive('editor', ['mapsAPI', 'S3', 'Upload', '$timeout', '$mdDialog', function (mapsAPI, S3, Upload, $timeout, $mdDialog) {
       return {
         restrict: 'E',
         templateUrl: 'modules/mapeditor/editor/editor.directive.html',
         scope: {
           map: '=',
-          error: '='
+          error: '=',
+          saved: '='
         },
         link: function ($scope) {
           var svg,
@@ -22,6 +23,14 @@
 
           $scope.dataPointMode = false;
           $scope.saving = false;
+
+          function showAlert(message) {
+            var alert = $mdDialog.alert({
+              textContent: message,
+              ok: 'Close'
+            });
+            $mdDialog.show(alert);
+          }
 
           function redraw() {
             svg.select('path').attr('d', lineFunction);
@@ -210,18 +219,28 @@
                     newMap.datapoints = cullDataPoints(dataPoints, points);
                     // insert code to save map to db here
                     mapsAPI.saveMap(newMap).then(function () {
-                      $scope.saving = false;
+                      $scope.$applyAsync(function () {
+                        $scope.saving = false;
+                        $scope.saved = true;
+                        $scope.map = {};
+                        $scope.$parent.journeyForm.$setUntouched();
+                        showAlert('Your journey has been saved!');
+                      });
                     });
                   });
                 },
                 function () {
-                  $scope.apply(function () {
+                  showAlert('Error saving journey :(');
+                  $scope.$applyAsync(function () {
                     $scope.saving = false;
                   });
                 });
               },
               function () {
-                $scope.saving = false;
+                showAlert('Error saving journey :(');
+                $scope.$applyAsync(function () {
+                  $scope.saving = false;
+                });
               });
             }
           };

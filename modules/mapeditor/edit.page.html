@@ -30,16 +30,16 @@
           </div>
         </md-input-container>
         <md-input-container>
-          <label>Image</label>
-          <input name="image" required ngf-select="upload($file)" ngf-resize="{ratio: '700:400', centerCrop: true}" ng-model="map.image" accept="image/*">
-          <div ng-messages="journeyForm.image.$error">
+          <md-button class="md-primary" ng-click="uploadImage()">Upload Image</md-button>
+          <input name="image" id="file-upload" type="file" required ngf-select="upload($file)" ngf-resize="{ratio: '700:400', centerCrop: true}" ng-model="map.image" aria-label="image" accept="image/*">
+          <!--<div ng-messages="journeyForm.image.$error">
             <div ng-message="required">A journey's no good without a map.</div>
-          </div>
+          </div>-->
         </md-input-container>
       </form>
     </div>
     <div class="map-container" ng-show="map.image" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow">
-      <editor map="map" error="error"></editor>
+      <editor map="map" saved="saved" error="error"></editor>
     </div>
     <div class="map-container" ng-show="!map.image" id="background-default" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow"></div>
   </div>
