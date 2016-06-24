@@ -116,6 +116,7 @@
           while (!end) {
             for (var i = curPoints.length; i < map.points.length; i++) {
               dpindex = isDataPoint(map.points[i]);
+              if (i == map.points.length - 1) end = true;
               if (dpindex != -1) {
                 curPoints.push(map.points[i]);
                 break;
@@ -125,9 +126,8 @@
             }
 
             line.attr('d', lineFunction(curPoints));  // add new points to the line
-            if (dpindex == -1) {  // reached end of points
+            if (dpindex == -1) {  // reached end of points, last point not datapoint
               pointLengths[pointLengths.length] = line.node().getTotalLength();  // Add total length of line to end of array
-              end = true;
             } else {
               pointLengths[dpindex] = line.node().getTotalLength();  // get length of line at datapoint
             }
