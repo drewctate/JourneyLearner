@@ -11,15 +11,42 @@
           duration: '='
         },
         link: function ($scope, $element) {
+          function parseDim (dim) {
+            return parseInt(dim.substring(0, dim.length - 2)); // remove 'px' and convert to int
+          }
+
+          // definedSVGWidth corresponds to the width defined by the SVG's viewbox attribute (map.directive.js:45)
+          //  and is used to compute new dimensions and coordinates for scaling.
+          var definedSVGWidth = 700,
+              definedSVGHeight = 400,
+              svgWidth = parseDim(angular.element('#map-svg').css('width'));
+
+          function scale (n) {
+            return n / (definedSVGWidth / svgWidth);
+          }
+
           function drawBox () {
-            var boxHeightStr = $element.css('height');
-            var boxWidthStr = $element.css('width');
-            var boxHeight = parseInt(boxHeightStr.substring(0, boxHeightStr.length - 2)); // remove 'px'
-            var boxWidth = parseInt(boxWidthStr.substring(0, boxWidthStr.length - 2)); // remove 'px'
-            console.log(boxHeight);
-            $element.css('left', $scope.coords[0] - boxWidth/2);
-            $element.css('top', $scope.coords[1] - (boxHeight + 30));
+            var svgHeight = parseDim(angular.element('#map-svg').css('height')),
+                boxInitHeight = parseDim($element.css('height')),
+                boxInitWidth = parseDim($element.css('width')),
+                boxWidth = scale(boxInitWidth),
+                boxHeight = scale(boxInitHeight),
+                definedFontSize = parseDim($element.css('font-size')),
+                triangle = angular.element('.triangle'),
+                triangleInitHeight = parseDim(triangle.css('height')),
+                triangleHeight = scale(triangleInitHeight);
+
+            triangle.css('width', boxWidth);
+            triangle.css('height', triangleHeight);
+            triangle.css('bottom', -triangleHeight);
+
+            $element.css('height', boxHeight);
+            $element.css('width', boxWidth);
+            $element.css('font-size', scale(definedFontSize));
+            $element.css('left', scale($scope.coords[0]) - boxWidth/2);
+            $element.css('top', scale($scope.coords[1]) - boxHeight - scale(30));
             $element.fadeIn(); // element is created hidden
+
             if ($scope.duration) {
               $timeout(function () {$element.fadeOut(500);}, $scope.duration);
               $timeout(function () {$element.remove();}, $scope.duration + 500);

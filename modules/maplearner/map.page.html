@@ -1,18 +1,26 @@
-<div class="map-container" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="nogrow" flex="grow">
-  <div ng-show="!maps" id="loading">
-    <h2>Please wait while I grab those maps from the database!</h2>
-    <img src="img/ajax-loader.gif">
+<div layout-gt-sm="row" layout-align-gt-sm="start" layout="column" layout-align="start center">
+  <div class="map-container" md-whiteframe="3" flex-order-gt-sm="2" flex-gt-sm="noshrink">
+    <div ng-show="!maps" id="loading">
+      <h2>Please wait while I grab those maps from the database!</h2>
+      <img src="img/ajax-loader.gif">
+    </div>
+    <h2>{{ maps[curMapId].title }}</h2>
+    <p>{{ maps[curMapId].description }}</p>
+    <map cur-map="maps[curMapId]"></map>
   </div>
-  <h2>{{ maps[curMapId].title }}</h2>
-  <p>{{ maps[curMapId].description }}</p>
-  <map cur-map="maps[curMapId]"></map>
+  <div id="sidenav" flex-order-gt-sm="1" flex="grow">
+    <md-content ng-repeat="map in maps">
+      <md-button ui-sref="maps({ mapId: map.id })">
+        {{ map.title }}
+      </md-button>
+      <hr>
+    </md-content>
+    <md-content ng-show="maps">
+      <md-button ui-sref="edit">
+        Create New
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </md-button>
+    </md-content>
+  </div>
+  <div flex="grow" flex-order-gt-sm="3"></div>
 </div>
-<div id="sidenav" flex-order-gt-sm="1" flex="grow">
-  <md-content ng-repeat="map in maps">
-    <md-button ui-sref="maps({ mapId: map.id })">
-      {{ map.title }}
-    </md-button>
-    <hr>
-  </md-content>
-</div>
-<div flex="grow" flex-order-gt-sm="3"></div>

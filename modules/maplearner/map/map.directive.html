@@ -4,9 +4,11 @@
     <md-button ng-if="curState==='finished'" ng-click="userDraw()">I want to try!</md-button>
     <div id="avgDiff" ng-show="avgDifference"><p>The average difference: {{ avgDifference }}</p></div>
   </div>
-  <div>
+  <div class="sliderContainer">
     <md-slider ng-disabled="sliderDisabled" flex ng-model="sliderProgress" step="1" min="0" max="300" aria-label="progress">
     </md-slider>
   </div>
-  <div id="map"></div>
+  <div id="map">
+    <div id="instruct" md-whiteframe="3"></div>
+  </div>
 </div>

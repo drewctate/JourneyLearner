@@ -1,0 +1,17 @@
+<div id="ctrls" class="clearfix">
+  <div class="left">
+    <h3>Click anywhere on the map to add points:</h3>
+  </div>
+  <div class="right">
+    <md-switch class="md-primary" ng-model="dataPointMode">
+      Info-box Mode
+      <md-tooltip md-direction="top">
+          Use this if you want an info box on your next point!
+      </md-tooltip>
+    </md-switch>
+    <md-button ng-click="save()">Save</md-button>
+  </div>
+</div>
+<div ngf-background="map.image" id="map-edit">
+  <md-progress-linear ng-show="saving" md-mode="indeterminate"></md-progress-linear>
+</div>
