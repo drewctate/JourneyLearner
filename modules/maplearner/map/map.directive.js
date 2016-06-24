@@ -54,6 +54,16 @@
             .style('background-image', 'url(\'' + $scope.map.image + '\')');
         }
 
+        function isEnd(dpIndex) {
+          var points = $scope.map.points;
+          var dataPoints = $scope.map.datapoints;
+          if (points[points.length - 1].x === dataPoints[dpIndex].coords[0] &&
+              points[points.length - 1].y === dataPoints[dpIndex].coords[1]) {
+            return true;
+          }
+          return false;
+        }
+
         function nextPoint() {
           var map = $scope.map;
           var prevLength;
@@ -70,7 +80,13 @@
           curDataPoint = $scope.map.datapoints[curDataPointIndex];
           // if drawing to datapoint instead of end, draw info box
           var endCallBack;
-          if (curDataPoint) {
+          if (curDataPoint && isEnd(curDataPointIndex)) {
+            endCallBack = function () {
+              $scope.curState = 'finished';
+              updateCtrls();
+              drawInfoBox(curDataPoint.coords[0], curDataPoint.coords[1], curDataPoint.desc, 1000);
+            };
+          } else if (curDataPoint) {
             endCallBack = function () {
               $scope.curState = 'paused';
               updateCtrls();
