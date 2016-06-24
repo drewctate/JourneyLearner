@@ -39,6 +39,11 @@
 
 .page-body {
   .map-container {
+    .sliderContainer {
+      @media(max-width: 700px) {
+        margin: 0 6px;
+      }
+    }
     #avgDiff {
       display: inline;
       p {
@@ -55,9 +60,9 @@
     #map {
       position:relative;
       #map-svg {
-        width: 700px;
-        height: 400px;
+        width: auto; // the aspect ratio is taken care of by the viewBox attribute
         z-index: 1;
+        background-size: cover;
       }
       #map-stroke {
         stroke: blue;
@@ -71,6 +76,7 @@
       }
       info {
         width: @info-box-width;
+        font-size: 16px;
         height: auto;
         background-color: #FFF;
         border: 2px solid #000;
@@ -86,6 +92,18 @@
           background-image: url('img/triangle.png');
           background-size: 100% 100%;
         }
+      }
+      #instruct {
+        display: none;
+        box-sizing: border-box;
+        width: 50%;
+        height: auto;
+        top: 25%;
+        left: 25%;
+        background-color: #FFF;
+        font-size: 18px;
+        padding: 10px;
+        position: absolute;
       }
     }
     #loading {

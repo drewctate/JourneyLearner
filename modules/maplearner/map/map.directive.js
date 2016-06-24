@@ -25,7 +25,15 @@
             curDataPoint = null,
             curDataPointIndex = 0,
             pointLengths = [],
-            pointDurations = [];
+            pointDurations = [],
+            firstUserDraw = true;
+
+        function instructionBox(info, timeout) {
+          var box = angular.element('#instruct');
+          box.text(info);
+          box.fadeIn();
+          $timeout(function () {box.fadeOut();}, timeout);
+        }
 
         function drawInfoBox(x, y, info, duration) {
           $scope.infoCoords = [x, y];
@@ -42,7 +50,8 @@
         function drawMap() {
           svgContainer = d3.select('#map').append('svg')
             .attr('id', 'map-svg')
-            .style('background-image', 'url(\'img/maps/' + $scope.map.image + '\')');
+            .attr('viewBox', '0 0 700 400')
+            .style('background-image', 'url(\'' + $scope.map.image + '\')');
         }
 
         function nextPoint() {
@@ -84,9 +93,6 @@
                 .duration(duration)
                 .ease('linear')
                 .attr('stroke-dashoffset', 0)
-                .each(function () {
-                  console.log(this);
-                })
                 .each('end', endCallBack);
         }
 
@@ -249,12 +255,11 @@
           return avgDifference;
         }
 
-        // this function sets up the canvas in preparation for the user to make their attempt.
-        // It binds eventhandlers to the canvas
-        $scope.userDraw = function () {
+        function prepareCanvasForDraw() {
           if (userLine) {
             userLine.attr('d', ''); //  clear previous line
           }
+
           var mouseDown = false,
               lastXY = [],
               curUserPoints = [];
@@ -299,15 +304,33 @@
               lastXY = xy;
             }
           });
+        }
+
+        // this function sets up the canvas in preparation for the user to make their attempt.
+        // It binds eventhandlers to the canvas
+        $scope.userDraw = function () {
+          if (firstUserDraw) {
+            firstUserDraw = false;
+            var message = `Are you ready for a challenge? Good! Use your mouse to draw
+                  a line just like the one I did. Then, I\'ll tell you how close you got!`,
+                timeout = 6000;
+
+            instructionBox(message, timeout);
+            $timeout(prepareCanvasForDraw, timeout);
+          } else {
+            prepareCanvasForDraw();
+          }
         };
 
         function activateSlider () {
           var sliderMax = 300;
           var totalLength = line.node().getTotalLength();
+          var slider = angular.element('md-slider');
           $scope.$watch('sliderProgress', function (newValue, oldValue) {
             line.attr('stroke-dashoffset', totalLength - (totalLength / sliderMax) * newValue);
           });
-          angular.element('md-slider')
+
+          slider
             .focus(function () {
               $scope.$apply(function () {
                 $scope.prevState = $scope.curState;
@@ -315,14 +338,15 @@
                 $scope.curState = 'slider';
                 updateCtrls();
               });
-              console.log('slider focused');
             })
             .focusout(function () {
               $scope.$apply(function () {
                 $scope.curState = $scope.prevState;
                 updateCtrls();
               });
-              console.log('slider unfocused');
+            })
+            .on('mouseup', function () {
+              slider.blur();
             });
         }
 
