@@ -1,5 +1,6 @@
 angular.module('JourneyLearner')
   .service('mapsAPI', ['$http', function ($http) {
+    'use strict';
     var backEnd = 'https://journeylearner-api.herokuapp.com';
 
     var getMap = function () {
