@@ -77,6 +77,7 @@
           }
 
           function mousedown () {
+            if (!$scope.editing) return;
             var newPoint = d3.mouse(svg.node());
             if ($scope.dataPointMode) {
               $mdDialog.show({
@@ -131,6 +132,7 @@
 
           function keydown () {
             if (!selected) return;
+            if (!$scope.editing) return;
             // can't delete points while md-dialog open
             if (angular.element(document).find('md-dialog').length > 0) return;
             switch (d3.event.keyCode) {
